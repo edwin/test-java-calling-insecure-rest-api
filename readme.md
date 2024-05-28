@@ -1,6 +1,9 @@
 # Connecting to a self sign https URL
 
+A single java class for testing connectivity to a web with a self-signed https protocol. 
+
 ## Exception Logs
+This is what happen without using a truststore
 ```
 Caused by: sun.security.validator.ValidatorException: PKIX path building failed: sun.security.provider.certpath.SunCertPathBuilderException: unable to find valid certification path to requested target
 	at java.base/sun.security.validator.PKIXValidator.doBuild(PKIXValidator.java:439)
@@ -18,3 +21,14 @@ Caused by: sun.security.provider.certpath.SunCertPathBuilderException: unable to
 	... 23 more
 ```
 
+## Generate Trust Store
+```
+$ echo "" | openssl s_client -connect some-insecure-url:443  -showcerts 2>/dev/null | openssl x509 -out my.cert
+
+$ keytool -import -alias ca -file my.cert -keystore customcacerts  -storepass changeit
+```
+
+## Run File with Trust Store
+```
+$ java -Djavax.net.ssl.trustStore=customcacerts -Djavax.net.ssl.trustStorePassword=changeit com.edw.Main
+```
